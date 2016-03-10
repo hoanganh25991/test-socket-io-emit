@@ -25,9 +25,55 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/users', users);
 /**
- * HANDLE PAGE
+ * HANDLE SOCKET
+ * 1. join room
+ * 2. emit to room
+ * 3. disconnect handle by namespace
  */
-app.get("/page1", function(req, res){
+app.get("/:pageX", function(req, res){
+  var io = require("./io.js");
+  var namespace = req.params.pageX;
+  var namespacePage1 = io.of(namespace);
+  namespacePage1.on("connection", function(socket){
+    //join "room"
+    console.log("socket.join('joinRoom''), socket.id-%s", socket.id);
+    socket.join("joinRoom");
+    //build msg
+    var msg = {
+      msg: "socket join room say hello",
+      socketID: socket.id,
+      date: new Date().getSeconds().toString()
+    };
+    //send to any body in room
+    console.log("socket.to('joinRoom').emit('hello', JSON.stringify(msg)), msg: ", msg);
+    //when emit, other people on client-side received this-msg
+    //modify msg, to notify that, it sent to ROOM
+    msg.emitTo = "joinRoom";
+    socket.to("joinRoom").emit("hello", JSON.stringify(msg));
+    //socket just emit to any one in this namespace
+    //modify msg, to notify that, it sent to NAMESPACE
+    msg.emitTo = namespace;
+    socket.emit("hello", JSON.stringify(msg));
+    //listen to event "hello", log msg from any body send
+    //this msg come from client-side, someone in room, emit it
+    //when client, socket.emit, he only emit to server, client can't see anybody, just server
+    socket.on("clientSayHello", function(msg){
+      //parse msg
+      var msgObject = JSON.parse(msg);
+      //log to server-console
+      console.log("socket receive msg, socket.id-%s", socket.id);
+      console.log("socket receive msg: ", msgObject);
+      //server now can emit what client say
+      //emit to room (through namespace, just who in room)
+      //modify msg, to notify that, it sent to ROOM
+      msg.emitTo = "joinRoom";
+      socket.to("joinRoom").emit("clientSayHello", msg);
+      //emit to namespace only
+      //modify msg, to notify that, it sent to NAMESPACE
+      msg.emitTo = namespace;
+      socket.emit("clientSayHello", msg);
+    });
+  });
   res.render("layout", {title: "page1"});
 });
 //app.get("/page1", function(req, res){
