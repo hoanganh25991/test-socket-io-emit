@@ -1,0 +1,8 @@
+1. ONE ioServer, MANY namespace
+	page1, page2,.. mo namespace khac nhau
+2. namespace MANAGE sockets
+	sockets in function on("connection", function(socket){}), socket.on, addListener to socket
+3. ROOM vs namespace
+	socket in different namespace join SAME ROOM
+4. socket.EMIT, where msg delivered
+	socket.to("room").emit("event-name", msg);

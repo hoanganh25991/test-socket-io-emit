@@ -1,0 +1,25 @@
+**ONE ioServer, MANY namespace
+app.get(pageX) > mo 1 namespace, on("connection", function(socket){
+	**ROOM
+	socket.join("room") //day socket vao room
+	socket.to("room").emit("hello", socket.id) //send socket.id vao room, check other received it
+	on("disconnect", function(){
+		log id
+	})
+	on("hello", function(msg){ //lang nghe emit tu ???
+		log
+	});
+});
+
+//client-side
+socket = io.of("namespace");
+**EMIT
+	//in server-side, this socket added to "room", listen to msg from others
+	socket.on("hello", msg) //get msg, console.log
+	//interval emit to "room"
+	socket.emit("hello", msg);
+
+**ROOM vs NAMESPACE
+app.get(pageX) > mo 1 namespace, ma socket khong join room
+nhung on("connection") thi emit bang server.emit(// send to all
+
