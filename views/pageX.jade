@@ -1,0 +1,9 @@
+extends layout
+
+block content
+    h1=title
+    p Welcome to #{title}
+    input#namespace(type="hidden", name="namespace", value=title)
+block script
+    script(src="/socket.io/socket.io.js")
+    script(src="/javascripts/socket.io-client.js")
